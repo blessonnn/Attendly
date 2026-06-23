@@ -4,7 +4,6 @@ export interface Student {
   rollNumber: string;
   class?: string;
   phone?: string;
-  photo?: string; // base64 data URL
 }
 
 export interface AttendanceRecord {
