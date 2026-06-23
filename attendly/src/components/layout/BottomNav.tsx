@@ -121,14 +121,14 @@ export default function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex min-w-[64px] flex-col items-center gap-0.5 px-3 py-2 transition-all duration-200 active:scale-90',
+                'relative flex min-w-[64px] flex-col items-center gap-0.5 px-3 py-2 transition-all duration-200 active:scale-90',
                 isActive
                   ? 'text-[#007AFF]'
                   : 'text-[#8E8E93] dark:text-[#636366]'
               )}
             >
-              <span className="h-6 w-6">{item.icon(isActive)}</span>
-              <span className={cn('text-[10px] font-medium', isActive && 'font-semibold')}>
+              <span className="pointer-events-none h-6 w-6">{item.icon(isActive)}</span>
+              <span className={cn('pointer-events-none text-[10px] font-medium', isActive && 'font-semibold')}>
                 {item.label}
               </span>
             </Link>
