@@ -101,14 +101,8 @@ export default function StudentProfile({ student, isOpen, onClose }: StudentProf
 
         {/* Profile Header */}
         <div className="flex flex-col items-center text-center">
-          <div className="relative mb-4 h-24 w-24 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] shadow-md">
-            {student.photo ? (
-              <img src={student.photo} alt={student.name} className="h-full w-full object-cover" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-[28px] font-semibold text-white">
-                {getInitials(student.name)}
-              </div>
-            )}
+          <div className="relative mb-4 flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] text-[28px] font-semibold text-white shadow-md">
+            {getInitials(student.name)}
           </div>
           <h2 className="text-[22px] font-bold text-[#1D1D1F] dark:text-white">
             {student.name}
