@@ -180,17 +180,18 @@ export default function StudentForm({ student, isOpen, onClose, onSubmit }: Stud
             />
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
+              onPointerDown={(e) => e.preventDefault()}
               className="flex-1 rounded-xl bg-[#F5F5F7] px-4 py-3.5 text-[15px] font-semibold text-[#1D1D1F] transition-all active:scale-[0.97] dark:bg-[#2C2C2E] dark:text-white"
             >
               Cancel
             </button>
             <button
               type="submit"
+              onPointerDown={(e) => e.preventDefault()}
               className="flex-1 rounded-xl bg-[#007AFF] px-4 py-3.5 text-[15px] font-semibold text-white transition-all active:scale-[0.97] hover:bg-[#0066DD]"
             >
               {student ? 'Save' : 'Add'}
