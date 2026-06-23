@@ -6,6 +6,7 @@ import type { Student } from '@/types';
 import PageHeader from '@/components/layout/PageHeader';
 import StudentCard from '@/components/students/StudentCard';
 import StudentForm from '@/components/students/StudentForm';
+import StudentProfile from '@/components/students/StudentProfile';
 
 export default function StudentsPage() {
   const [mounted, setMounted] = useState(false);
@@ -13,6 +14,7 @@ export default function StudentsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Student | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<Student | null>(null);
   const { students, addStudent, updateStudent, deleteStudent, isLoading } = useStudents(searchQuery);
 
   // Lazy rendering
@@ -146,6 +148,7 @@ export default function StudentsPage() {
               <StudentCard
                 key={student.id}
                 student={student}
+                onClick={(s) => setSelectedProfile(s)}
                 onEdit={(s) => {
                   setEditingStudent(s);
                   setIsFormOpen(true);
@@ -214,6 +217,15 @@ export default function StudentsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Student Profile Modal */}
+      {selectedProfile && (
+        <StudentProfile
+          student={selectedProfile}
+          isOpen={true}
+          onClose={() => setSelectedProfile(null)}
+        />
       )}
     </div>
   );

@@ -89,12 +89,8 @@ export default function StudentForm({ student, isOpen, onClose, onSubmit }: Stud
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Photo */}
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-[#F5F5F7] transition-transform active:scale-95 dark:bg-[#2C2C2E]"
-            >
+          <div className="flex flex-col items-center">
+            <div className="relative mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-[#F5F5F7] dark:bg-[#2C2C2E]">
               {photo ? (
                 <img src={photo} alt="Student" className="h-full w-full object-cover" />
               ) : (
@@ -111,7 +107,33 @@ export default function StudentForm({ student, isOpen, onClose, onSubmit }: Stud
                   />
                 </svg>
               )}
-            </button>
+            </div>
+            
+            <div className="flex gap-3">
+              {[1, 2, 3].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => setPhoto(`/avatars/avatar_${num}.png`)}
+                  className={`relative h-12 w-12 overflow-hidden rounded-full transition-transform active:scale-95 ${
+                    photo === `/avatars/avatar_${num}.png` ? 'ring-2 ring-[#007AFF] ring-offset-2 dark:ring-offset-[#1C1C1E]' : ''
+                  }`}
+                >
+                  <img src={`/avatars/avatar_${num}.png`} alt={`Avatar ${num}`} className="h-full w-full object-cover" />
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F5F5F7] text-[#007AFF] transition-transform active:scale-95 dark:bg-[#2C2C2E]"
+                aria-label="Upload custom photo"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            
             <input
               ref={fileInputRef}
               type="file"

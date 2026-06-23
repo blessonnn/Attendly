@@ -5,13 +5,17 @@ import type { Student } from '@/types';
 
 interface StudentCardProps {
   student: Student;
+  onClick: (student: Student) => void;
   onEdit: (student: Student) => void;
   onDelete: (student: Student) => void;
 }
 
-export default function StudentCard({ student, onEdit, onDelete }: StudentCardProps) {
+export default function StudentCard({ student, onClick, onEdit, onDelete }: StudentCardProps) {
   return (
-    <div className="flex items-center gap-3 rounded-[16px] bg-white p-3 shadow-sm transition-all duration-200 active:scale-[0.98] dark:bg-[#1C1C1E]">
+    <div 
+      onClick={() => onClick(student)}
+      className="flex cursor-pointer items-center gap-3 rounded-[16px] bg-white p-3 shadow-sm transition-all duration-200 active:scale-[0.98] dark:bg-[#1C1C1E]"
+    >
       {/* Avatar */}
       <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6]">
         {student.photo ? (
