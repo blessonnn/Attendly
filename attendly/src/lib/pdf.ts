@@ -1,12 +1,14 @@
 import jsPDF from 'jspdf';
-import type { Student, AttendanceRecord } from '@/types';
+import type { Student, AttendanceRecord, Holiday } from '@/types';
 import { getMonthName } from '@/lib/utils';
 
 export function generatePDFReport(
   student: Student,
   records: AttendanceRecord[],
   month: number,
-  year: number
+  year: number,
+  stats: { total: number; workingDays: number; present: number; absent: number; percentage: string },
+  monthHolidays: Holiday[]
 ): void {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -62,29 +64,24 @@ export function generatePDFReport(
   doc.setDrawColor(229, 229, 234);
   doc.line(20, infoStartY + lineHeight * 3 + 14, pageWidth - 20, infoStartY + lineHeight * 3 + 14);
 
-  // Calculate stats
-  const presentDays = records.filter((r) => r.status === 'present').length;
-  const absentDays = records.filter((r) => r.status === 'absent').length;
-  const totalDays = records.length;
-  const percentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
-
   // Summary cards
   const summaryY = infoStartY + lineHeight * 3 + 28;
-  const cardWidth = (pageWidth - 60) / 4;
+  const cardWidth = (pageWidth - 40 - (4 * 4)) / 5; // 5 cards fit
   
   const cards = [
-    { label: 'Total Days', value: totalDays.toString(), color: [0, 122, 255] },
-    { label: 'Present', value: presentDays.toString(), color: [52, 199, 89] },
-    { label: 'Absent', value: absentDays.toString(), color: [255, 59, 48] },
-    { label: 'Percentage', value: `${percentage}%`, color: [0, 122, 255] },
+    { label: 'Calendar', value: stats.total.toString(), color: [0, 122, 255] },
+    { label: 'Working', value: stats.workingDays.toString(), color: [0, 122, 255] },
+    { label: 'Present', value: stats.present.toString(), color: [52, 199, 89] },
+    { label: 'Absent', value: stats.absent.toString(), color: [255, 59, 48] },
+    { label: 'Percentage', value: `${stats.percentage}%`, color: [0, 122, 255] },
   ];
 
   cards.forEach((card, i) => {
-    const x = 20 + i * (cardWidth + 6);
+    const x = 20 + i * (cardWidth + 4);
     doc.setFillColor(245, 245, 247);
     doc.roundedRect(x, summaryY, cardWidth, 35, 4, 4, 'F');
 
-    doc.setFontSize(18);
+    doc.setFontSize(14);
     doc.setTextColor(card.color[0], card.color[1], card.color[2]);
     doc.text(card.value, x + cardWidth / 2, summaryY + 16, { align: 'center' });
 
@@ -93,8 +90,28 @@ export function generatePDFReport(
     doc.text(card.label, x + cardWidth / 2, summaryY + 27, { align: 'center' });
   });
 
+  let currentY = summaryY + 50;
+
+  // Holidays Section
+  if (monthHolidays.length > 0) {
+    doc.setFontSize(14);
+    doc.setTextColor(29, 29, 31);
+    doc.text('Holidays in Month', 20, currentY);
+    
+    doc.setFontSize(9);
+    let holidayY = currentY + 8;
+    monthHolidays.forEach((h) => {
+      const hd = new Date(h.date + 'T00:00:00');
+      doc.setTextColor(255, 149, 0); // Orange
+      doc.text(`${hd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${h.title}`, 20, holidayY);
+      holidayY += 6;
+    });
+
+    currentY = holidayY + 10;
+  }
+
   // Daily records table
-  const tableY = summaryY + 50;
+  const tableY = currentY;
   doc.setFontSize(14);
   doc.setTextColor(29, 29, 31);
   doc.text('Daily Records', 20, tableY);

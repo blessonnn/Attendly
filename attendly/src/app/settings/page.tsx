@@ -1,9 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import Link from 'next/link';
 import { useTheme } from '@/hooks/useTheme';
 import { exportBackup, importBackup, deleteAllData } from '@/lib/backup';
 import PageHeader from '@/components/layout/PageHeader';
+import { db } from '@/db';
+import { DEFAULT_WORKING_DAYS } from '@/lib/calendar';
 
 export default function SettingsPage() {
   const [mounted, setMounted] = useState(false);
@@ -11,6 +15,17 @@ export default function SettingsPage() {
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const workingDaysSetting = useLiveQuery(() => db.settings.get('workingDays'));
+  const workingDays = workingDaysSetting?.value ?? DEFAULT_WORKING_DAYS;
+
+  const toggleWorkingDay = async (dayIndex: number) => {
+    const newWorkingDays = workingDays.includes(dayIndex)
+      ? workingDays.filter((d: number) => d !== dayIndex)
+      : [...workingDays, dayIndex].sort((a: number, b: number) => a - b);
+    
+    await db.settings.put({ id: 'workingDays', value: newWorkingDays });
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -64,6 +79,51 @@ export default function SettingsPage() {
       <PageHeader title="Settings" />
 
       <div className="space-y-6 px-5 pt-4">
+        {/* Academic Calendar */}
+        <div>
+          <h3 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-[#8E8E93] dark:text-[#98989D]">
+            Academic Calendar
+          </h3>
+          <div className="overflow-hidden rounded-[16px] bg-white shadow-sm dark:bg-[#1C1C1E]">
+            {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((dayName, index) => (
+              <div key={dayName}>
+                <div className="flex w-full items-center justify-between px-4 py-3.5">
+                  <span className="text-[15px] text-[#1D1D1F] dark:text-white">{dayName}</span>
+                  <label className="relative inline-flex cursor-pointer items-center">
+                    <input
+                      type="checkbox"
+                      className="peer sr-only"
+                      checked={workingDays.includes(index)}
+                      onChange={() => toggleWorkingDay(index)}
+                    />
+                    <div className="peer h-7 w-12 rounded-full bg-[#E5E5EA] after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-[#34C759] peer-checked:after:translate-x-[20px] peer-checked:after:border-white dark:bg-[#38383A] dark:peer-checked:bg-[#34C759]"></div>
+                  </label>
+                </div>
+                {index < 6 && <div className="mx-4 h-px bg-[#E5E5EA] dark:bg-[#38383A]" />}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 overflow-hidden rounded-[16px] bg-white shadow-sm dark:bg-[#1C1C1E]">
+            <Link
+              href="/settings/holidays"
+              className="flex w-full items-center justify-between px-4 py-3.5 transition-colors active:bg-[#F5F5F7] dark:active:bg-[#2C2C2E]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FF3B30]/15">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M12 2V4M6 2V4M3 7H15M4 2H14C14.5523 2 15 2.44772 15 3V15C15 15.5523 14.5523 16 14 16H4C3.44772 16 3 15.5523 3 15V3C3 2.44772 3.44772 2 4 2Z" stroke="#FF3B30" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <span className="text-[15px] text-[#1D1D1F] dark:text-white">Manage Holidays</span>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-[#C7C7CC]">
+                <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+
         {/* Appearance */}
         <div>
           <h3 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-[#8E8E93] dark:text-[#98989D]">

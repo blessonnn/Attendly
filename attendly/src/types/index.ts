@@ -14,6 +14,17 @@ export interface AttendanceRecord {
   status: 'present' | 'absent';
 }
 
+export interface Holiday {
+  id?: number;
+  date: string; // YYYY-MM-DD
+  title: string;
+}
+
+export interface Setting {
+  id: string;
+  value: any;
+}
+
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 export interface BackupData {
@@ -21,4 +32,6 @@ export interface BackupData {
   exportedAt: string;
   students: Student[];
   attendance: AttendanceRecord[];
+  holidays?: Holiday[];
+  settings?: Setting[];
 }

@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/db';
-import { getMonthName } from '@/lib/utils';
+import { getMonthName, getMonthDays } from '@/lib/utils';
+import { DEFAULT_WORKING_DAYS, calculateWorkingDays } from '@/lib/calendar';
 import { generatePDFReport } from '@/lib/pdf';
 import { exportCSV } from '@/lib/csv';
 import type { AttendanceRecord } from '@/types';
@@ -21,6 +22,9 @@ export default function ReportsPage() {
   }, []);
 
   const students = useLiveQuery(() => db.students.orderBy('name').toArray(), []);
+  const holidaysData = useLiveQuery(() => db.holidays.toArray(), []) || [];
+  const workingDaysSetting = useLiveQuery(() => db.settings.get('workingDays'));
+  const workingDaysData = workingDaysSetting?.value ?? DEFAULT_WORKING_DAYS;
 
   // Fetch records when student/month changes
   useEffect(() => {
@@ -40,24 +44,33 @@ export default function ReportsPage() {
       .then(setRecords);
   }, [selectedStudentId, selectedMonth, selectedYear]);
 
+  const monthHolidays = useMemo(() => {
+    return holidaysData.filter((h) => {
+      const d = new Date(h.date + 'T00:00:00');
+      return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+    });
+  }, [holidaysData, selectedMonth, selectedYear]);
+
   const stats = useMemo(() => {
+    const calendarDaysCount = getMonthDays(selectedYear, selectedMonth);
+    const workingDaysCount = calculateWorkingDays(selectedYear, selectedMonth, workingDaysData, holidaysData);
+
     const present = records.filter((r) => r.status === 'present').length;
     const absent = records.filter((r) => r.status === 'absent').length;
-    const total = records.length;
-    const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
-    return { present, absent, total, percentage };
-  }, [records]);
+    const percentage = workingDaysCount > 0 ? ((present / workingDaysCount) * 100).toFixed(1) : '0.0';
+    return { present, absent, total: calendarDaysCount, workingDays: workingDaysCount, percentage };
+  }, [records, selectedYear, selectedMonth, workingDaysData, holidaysData]);
 
   const selectedStudent = students?.find((s) => s.id === selectedStudentId);
 
   const handleDownloadPDF = () => {
     if (!selectedStudent) return;
-    generatePDFReport(selectedStudent, records, selectedMonth, selectedYear);
+    generatePDFReport(selectedStudent, records, selectedMonth, selectedYear, stats, monthHolidays);
   };
 
   const handleExportCSV = () => {
     if (!selectedStudent) return;
-    exportCSV(selectedStudent, records, getMonthName(selectedMonth), selectedYear);
+    exportCSV(selectedStudent, records, getMonthName(selectedMonth), selectedYear, stats);
   };
 
   // Generate month options

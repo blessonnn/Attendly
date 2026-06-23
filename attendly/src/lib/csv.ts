@@ -5,20 +5,21 @@ export function exportCSV(
   student: Student,
   records: AttendanceRecord[],
   monthName: string,
-  year: number
+  year: number,
+  stats: { total: number; workingDays: number; present: number; absent: number; percentage: string }
 ): void {
-  const data = records.map((record) => {
-    const date = new Date(record.date + 'T00:00:00');
-    return {
-      Date: date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      }),
-      Day: date.toLocaleDateString('en-US', { weekday: 'long' }),
-      Status: record.status === 'present' ? 'Present' : 'Absent',
-    };
-  });
+  // Instead of row per day, user requested a single summary with these exact columns
+  const data = [
+    {
+      'Student Name': student.name,
+      'Month': `${monthName} ${year}`,
+      'Calendar Days': stats.total,
+      'Working Days': stats.workingDays,
+      'Present Days': stats.present,
+      'Absent Days': stats.absent,
+      'Attendance Percentage': `${stats.percentage}%`
+    }
+  ];
 
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
