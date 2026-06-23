@@ -17,18 +17,8 @@ export default function StudentCard({ student, onClick, onEdit, onDelete }: Stud
       className="flex cursor-pointer items-center gap-3 rounded-[16px] bg-white p-3 shadow-sm transition-all duration-200 active:scale-[0.98] dark:bg-[#1C1C1E]"
     >
       {/* Avatar */}
-      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6]">
-        {student.photo ? (
-          <img
-            src={student.photo}
-            alt={student.name}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-[15px] font-semibold text-white">
-            {getInitials(student.name)}
-          </div>
-        )}
+      <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] text-[15px] font-semibold text-white">
+        {getInitials(student.name)}
       </div>
 
       {/* Info */}
