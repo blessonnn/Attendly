@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { cn, formatDate } from '@/lib/utils';
 
 interface DateSelectorProps {
@@ -8,32 +9,44 @@ interface DateSelectorProps {
 }
 
 export default function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
-  const selected = new Date(selectedDate + 'T00:00:00');
+  const [centerDateStr, setCenterDateStr] = useState(selectedDate);
+
+  useEffect(() => {
+    const center = new Date(centerDateStr + 'T00:00:00');
+    const selected = new Date(selectedDate + 'T00:00:00');
+    const diffDays = Math.abs((selected.getTime() - center.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays > 3) {
+      setCenterDateStr(selectedDate);
+    }
+  }, [selectedDate, centerDateStr]);
+
+  const center = new Date(centerDateStr + 'T00:00:00');
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Generate 7-day range around selected date
+  // Generate 7-day range around center date
   const days: Date[] = [];
   for (let i = -3; i <= 3; i++) {
-    const d = new Date(selected);
+    const d = new Date(center);
     d.setDate(d.getDate() + i);
     days.push(d);
   }
 
   const goToPrevDay = () => {
-    const d = new Date(selected);
-    d.setDate(d.getDate() - 1);
-    onDateChange(formatDate(d));
+    const selected = new Date(selectedDate + 'T00:00:00');
+    selected.setDate(selected.getDate() - 1);
+    onDateChange(formatDate(selected));
   };
 
   const goToNextDay = () => {
-    const d = new Date(selected);
-    d.setDate(d.getDate() + 1);
-    onDateChange(formatDate(d));
+    const selected = new Date(selectedDate + 'T00:00:00');
+    selected.setDate(selected.getDate() + 1);
+    onDateChange(formatDate(selected));
   };
 
   const goToToday = () => {
     onDateChange(formatDate(today));
+    setCenterDateStr(formatDate(today));
   };
 
   return (
