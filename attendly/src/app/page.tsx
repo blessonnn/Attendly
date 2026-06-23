@@ -35,10 +35,18 @@ export default function DashboardPage() {
   const total = totalStudents ?? 0;
   const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    if (hour < 21) return 'Good evening';
+    return 'Good night';
+  };
+
   return (
     <div className="pb-24">
       <PageHeader
-        title="Dashboard"
+        title={getGreeting()}
         subtitle={formatDisplayDate(new Date())}
       />
 
