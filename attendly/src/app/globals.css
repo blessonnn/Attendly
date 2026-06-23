@@ -47,6 +47,8 @@
   --color-apple-separator: #E5E5EA;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Base styles */
 * {
   -webkit-tap-highlight-color: transparent;
